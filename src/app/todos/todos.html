@@ -1,0 +1,79 @@
+<main class="container">
+  <header class="intro">
+    <span class="eyebrow">MODULO 03 · ANGULAR</span>
+    <h1>HTTP e API REST</h1>
+    <p>Un esercizio pratico con <code>HttpClient</code>, JSONPlaceholder, Observable e signal.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="elenco-title">
+    <div class="section-heading">
+      <div>
+        <h2 id="elenco-title">Cose da fare</h2>
+        <p>GET <code>/todos?userId={{ utente() }}</code></p>
+      </div>
+      <span class="counter">Utente {{ utente() }}</span>
+    </div>
+
+    <div class="user-buttons" role="group" aria-label="Seleziona un utente">
+      @for (id of [1, 2, 99]; track id) {
+        <button type="button" [class.active]="utente() === id" [attr.aria-pressed]="utente() === id" (click)="carica(id)">
+          Utente {{ id }}
+        </button>
+      }
+    </div>
+
+    @if (loading()) {
+      <p class="notice" role="status">Caricamento attività…</p>
+    } @else if (errore()) {
+      <div class="notice error" role="alert">{{ errore() }} <button type="button" (click)="carica(utente())">Riprova</button></div>
+    } @else {
+      <p class="summary">Completate: <strong>{{ completate() }}</strong> su {{ todos().length }}</p>
+      <ul class="todo-list">
+        @for (todo of todos(); track todo.id) {
+          <li>
+            <div class="todo-name">
+              <span class="todo-title">{{ todo.title }}</span>
+              @if (todo.completed) { <span class="badge">fatto</span> }
+            </div>
+            <button type="button" class="delete-button" [disabled]="eliminazioniInCorso().has(todo.id)" (click)="elimina(todo)" [attr.aria-label]="'Elimina: ' + todo.title">
+              {{ eliminazioniInCorso().has(todo.id) ? 'Eliminazione…' : 'Elimina' }}
+            </button>
+          </li>
+        } @empty {
+          <li class="empty">Nessuna attività per questo utente. La risposta è una lista vuota (HTTP 200).</li>
+        }
+      </ul>
+    }
+
+    @if (erroreAzione()) { <p class="notice error" role="alert">{{ erroreAzione() }}</p> }
+  </section>
+
+  <section class="panel" aria-labelledby="crea-title">
+    <div class="section-heading">
+      <div>
+        <h2 id="crea-title">Crea un'attività</h2>
+        <p>POST <code>/todos</code></p>
+      </div>
+    </div>
+    <div class="create-row">
+      <input #nuova aria-label="Titolo della nuova attività" placeholder="Scrivi il titolo dell'attività" (keydown.enter)="aggiungi(nuova)" />
+      <button type="button" [disabled]="invioInCorso()" (click)="aggiungi(nuova)">{{ invioInCorso() ? 'Invio…' : 'Invia' }}</button>
+    </div>
+    @if (creato(); as risposta) {
+      <p class="response-label">Risposta del server (201 Created):</p>
+      <pre>{{ risposta | json }}</pre>
+    }
+    <p class="hint">JSONPlaceholder restituisce una risposta di prova: la POST e la DELETE non vengono salvate. Ricaricando la lista ritroverai i dati originali.</p>
+  </section>
+
+  <section class="panel experiment" aria-labelledby="prova-title">
+    <div>
+      <h2 id="prova-title">Prova tu: 404</h2>
+      <p>Un'attività inesistente restituisce <strong>404 Not Found</strong>; l'utente 99, invece, restituisce <strong>200 OK</strong> con una lista vuota.</p>
+      @if (rispostaProva()) { <p class="notice" role="status">{{ rispostaProva() }}</p> }
+    </div>
+    <button type="button" (click)="prova404()">Prova GET /todos/999</button>
+  </section>
+
+  <footer>Apri gli strumenti per sviluppatori (F12) → Network → Fetch/XHR per vedere metodo, URL e codice di stato.</footer>
+</main>
